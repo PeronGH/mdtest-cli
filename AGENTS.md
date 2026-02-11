@@ -19,13 +19,15 @@ This repository is for `mdtest`, a test runner that uses AI agents as interprete
 
 - `/docs/design/` — Design-level specs. Numbered starting from `001`. Describes what the system should do, in terms that anyone technical can follow without reading the codebase. Covers behavior, user-facing concepts, and architectural decisions.
 - `/docs/implementation/` — Implementation-level specs. Numbered starting from `001`. Written for programmers and coding agents. Describes interfaces, constraints, invariants, and structural decisions. Should be declarative and durable — express intent and rationale, not one-time plans tied to specific lines of code.
-- `/docs/plans/` — One-time implementation plans. Gitignored. Each plan is linked to an implementation doc and breaks it down into phases. Each phase must result in a coherent, compilable, runnable product (atomic). Phases should be small enough for human review — ideally under 200 lines of code changed, excluding lockfiles and generated files. Plans let a human preview what the agent is going to do before it does it.
+- `/tests/` — Test cases as `.test.md` files. This is what mdtest runs.
 
 **Referencing rules**: Design docs may reference other design docs. Implementation docs may reference design docs and other implementation docs. Design docs must not reference implementation docs — the dependency flows downward only.
 
 **Spec language**: Specs must be definitive and reasonably concise. No "TBD", no "optionally", no unmade decisions. If something is unclear or undecided, the agent must discuss it with the user and resolve it before writing it into a spec. Specs should be short enough that a human can review them in full.
 
-- `/tests/` — Test cases as `.test.md` files. This is what mdtest runs.
+## Implementation Workflow
+
+When implementing an implementation doc, the agent must first propose a phased breakdown to the user. Each phase must result in a coherent, compilable, runnable product (atomic) and be small enough for human review — ideally under 200 lines of code changed, excluding lockfiles and generated files. The agent checks back with the user after completing each phase before proceeding to the next.
 
 ## Tests
 
