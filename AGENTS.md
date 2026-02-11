@@ -44,3 +44,7 @@ A bootstrap layer of Go unit tests covers core runner logic (front matter parsin
 ## Commit Conventions
 
 Commit messages follow `type(scope): summary`.
+
+## Editing Discipline
+
+When making changes to docs or code, refactor and restructure as needed. The result should read as if it was written that way from the start. Don't pile up patches or accumulate special cases.
