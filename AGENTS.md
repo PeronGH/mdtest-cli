@@ -17,12 +17,12 @@ This repository is for `mdtest`, a test runner that uses AI agents as interprete
 
 ## Directory Structure
 
-- `/docs/design/` — Design-level specs. Numbered starting from `001`. Describes what the system should do and why, in terms that anyone technical can follow without reading the codebase. Covers behavior, user-facing concepts, and architectural decisions.
+- `/docs/design/` — Design-level specs. Numbered starting from `001`. Describes what the system should do, in terms that anyone technical can follow without reading the codebase. Covers behavior, user-facing concepts, and architectural decisions.
 - `/docs/implementation/` — Implementation-level specs. Numbered starting from `001`. Written for programmers and coding agents. Describes interfaces, constraints, invariants, and structural decisions. Should be declarative and durable — express intent and rationale, not one-time plans tied to specific lines of code.
 
 **Referencing rules**: Design docs may reference other design docs. Implementation docs may reference design docs and other implementation docs. Design docs must not reference implementation docs — the dependency flows downward only.
 
-**Spec language**: Specs must be definitive. No "TBD", no "optionally", no unmade decisions. If something is unclear or undecided, the agent must discuss it with the user and resolve it before writing it into a spec. A merged spec represents a decision that has been made.
+**Spec language**: Specs must be definitive. No "TBD", no "optionally", no unmade decisions. If something is unclear or undecided, the agent must discuss it with the user and resolve it before writing it into a spec.
 
 - `/tests/` — Test cases as `.test.md` files. This is what mdtest runs.
 
