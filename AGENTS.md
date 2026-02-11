@@ -44,10 +44,8 @@ No front matter means no requirements, runs everywhere.
 
 A bootstrap layer of Go unit tests covers core runner logic (front matter parsing, capability matching, prompt construction). Integration and end-to-end flows are `.test.md` files.
 
-## Commit Conventions
+## Misc Rules
 
-Commit messages follow `type(scope): summary`.
-
-## Editing Discipline
-
-When making changes to docs or code, refactor and restructure as needed. The result should read as if it was written that way from the start. Don't pile up patches or accumulate special cases.
+- Commit messages follow `type(scope): summary`.
+- Always use package manager commands to add or update dependencies. Never manually edit dependency files. Don't pin versions unless explicitly asked.
+- When making changes to docs or code, refactor and restructure as needed. The result should read as if it was written that way from the start. Don't pile up patches or accumulate special cases.
