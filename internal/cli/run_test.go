@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"testing"
 
-	"mdtest/internal/run"
+	"github.com/PeronGH/mdtest/internal/run"
 )
 
 func TestExecuteRejectsInvalidAgentFlag(t *testing.T) {

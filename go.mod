@@ -1,4 +1,4 @@
-module mdtest
+module github.com/PeronGH/mdtest
 
 go 1.25.6
 

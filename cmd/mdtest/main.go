@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"mdtest/internal/cli"
+	"github.com/PeronGH/mdtest/internal/cli"
 )
 
 func main() {

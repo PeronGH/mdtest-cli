@@ -9,9 +9,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"mdtest/internal/agent"
-	"mdtest/internal/ptyexec"
-	"mdtest/internal/run"
+	"github.com/PeronGH/mdtest/internal/agent"
+	"github.com/PeronGH/mdtest/internal/ptyexec"
+	"github.com/PeronGH/mdtest/internal/run"
 )
 
 const (
