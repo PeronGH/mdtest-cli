@@ -79,11 +79,11 @@ ran_at: 2026-02-10T14:30:00Z
 passed: 3
 failed: 1
 cases:
-  - name: add-to-cart
-    status: pass
-  - name: apply-coupon
-    status: fail
-    reason: "Expected discount of 20%, got 15%"
+    - name: add-to-cart
+      status: pass
+    - name: apply-coupon
+      status: fail
+      reason: "Expected discount of 20%, got 15%"
 ---
 
 ## Add to Cart ✅
@@ -129,11 +129,11 @@ No single signal is sufficient. The combination, plus human judgment, determines
 
 Four components, all operating on the same Markdown artifacts:
 
-| Component | Role |
-|---|---|
-| **AI Linter** | Checks test Markdown for ambiguity, vague assertions, and implicit state dependencies at authoring time. |
-| **Execution Agent** | Reads Markdown tests, executes them via computer use and MCP, produces Markdown execution logs. |
-| **Reporting Layer** | Structured YAML front matter for machine consumption, narrative Markdown body for human consumption. |
+| Component              | Role                                                                                                        |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **AI Linter**          | Checks test Markdown for ambiguity, vague assertions, and implicit state dependencies at authoring time.    |
+| **Execution Agent**    | Reads Markdown tests, executes them via computer use and MCP, produces Markdown execution logs.             |
+| **Reporting Layer**    | Structured YAML front matter for machine consumption, narrative Markdown body for human consumption.        |
 | **Conversion Advisor** | Analyzes stability, coverage, and dependencies to recommend which Markdown tests to promote to coded tests. |
 
 ## Design Principles
