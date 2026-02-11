@@ -84,3 +84,14 @@ func resolveExplicit(agent Name, lookPath LookPathFunc) (Name, error) {
 	}
 	return "", fmt.Errorf("resolve %q: %w", agent, err)
 }
+
+func CommandArgs(agent Name, prompt string) ([]string, error) {
+	switch agent {
+	case ClaudeAgent:
+		return []string{string(ClaudeAgent), "-p", prompt}, nil
+	case CodexAgent:
+		return []string{string(CodexAgent), prompt}, nil
+	default:
+		return nil, fmt.Errorf("unsupported agent %q", agent)
+	}
+}

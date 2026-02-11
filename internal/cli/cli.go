@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os/exec"
@@ -8,6 +10,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"mdtest/internal/agent"
+	"mdtest/internal/ptyexec"
+	"mdtest/internal/run"
 )
 
 const (
@@ -30,14 +34,26 @@ func (e *ExitError) Unwrap() error {
 }
 
 func Execute(args []string, stdout, stderr io.Writer, lookPath agent.LookPathFunc) int {
-	root := NewRootCmd(stdout, stderr, lookPath)
+	return executeWithDeps(args, stdout, stderr, lookPath, defaultRunSuite(stdout))
+}
+
+type RunSuiteFunc func(ctx context.Context, cfg run.Config) (run.SuiteResult, error)
+
+func executeWithDeps(
+	args []string,
+	stdout io.Writer,
+	stderr io.Writer,
+	lookPath agent.LookPathFunc,
+	runSuite RunSuiteFunc,
+) int {
+	root := NewRootCmd(stdout, stderr, lookPath, runSuite)
 	root.SetArgs(args)
 
 	if err := root.Execute(); err != nil {
 		_, _ = fmt.Fprintln(stderr, err.Error())
 
 		var exitErr *ExitError
-		if ok := As(err, &exitErr); ok {
+		if errors.As(err, &exitErr) {
 			return exitErr.Code
 		}
 		return ExitSetupError
@@ -46,7 +62,7 @@ func Execute(args []string, stdout, stderr io.Writer, lookPath agent.LookPathFun
 	return ExitOK
 }
 
-func NewRootCmd(stdout, stderr io.Writer, lookPath agent.LookPathFunc) *cobra.Command {
+func NewRootCmd(stdout, stderr io.Writer, lookPath agent.LookPathFunc, runSuite RunSuiteFunc) *cobra.Command {
 	root := &cobra.Command{
 		Use:           "mdtest",
 		SilenceErrors: true,
@@ -54,11 +70,11 @@ func NewRootCmd(stdout, stderr io.Writer, lookPath agent.LookPathFunc) *cobra.Co
 	}
 	root.SetOut(stdout)
 	root.SetErr(stderr)
-	root.AddCommand(newRunCmd(lookPath))
+	root.AddCommand(newRunCmd(lookPath, runSuite))
 	return root
 }
 
-func newRunCmd(lookPath agent.LookPathFunc) *cobra.Command {
+func newRunCmd(lookPath agent.LookPathFunc, runSuite RunSuiteFunc) *cobra.Command {
 	agentFlag := string(agent.AutoMode)
 	cmd := &cobra.Command{
 		Use:   "run",
@@ -68,8 +84,24 @@ func newRunCmd(lookPath agent.LookPathFunc) *cobra.Command {
 			if err != nil {
 				return &ExitError{Code: ExitSetupError, Err: err}
 			}
-			if _, err := agent.Resolve(mode, lookPath); err != nil {
+			resolved, err := agent.Resolve(mode, lookPath)
+			if err != nil {
 				return &ExitError{Code: ExitSetupError, Err: err}
+			}
+
+			suite, err := runSuite(context.Background(), run.Config{
+				Root:  ".",
+				Agent: resolved,
+			})
+			if err != nil {
+				var setupErr *run.SetupError
+				if errors.As(err, &setupErr) {
+					return &ExitError{Code: ExitSetupError, Err: setupErr}
+				}
+				return &ExitError{Code: ExitSetupError, Err: err}
+			}
+			if suite.Failed > 0 {
+				return &ExitError{Code: ExitFailed, Err: fmt.Errorf("%d test(s) failed", suite.Failed)}
 			}
 			return nil
 		},
@@ -78,27 +110,19 @@ func newRunCmd(lookPath agent.LookPathFunc) *cobra.Command {
 	return cmd
 }
 
-func As(err error, target interface{}) bool {
-	switch t := target.(type) {
-	case **ExitError:
-		for err != nil {
-			exitErr, ok := err.(*ExitError)
-			if ok {
-				*t = exitErr
-				return true
-			}
-			unwrapper, ok := err.(interface{ Unwrap() error })
-			if !ok {
-				return false
-			}
-			err = unwrapper.Unwrap()
-		}
-		return false
-	default:
-		return false
-	}
-}
-
 func DefaultLookPath(file string) (string, error) {
 	return exec.LookPath(file)
+}
+
+func defaultRunSuite(out io.Writer) RunSuiteFunc {
+	return func(ctx context.Context, cfg run.Config) (run.SuiteResult, error) {
+		deps := run.DefaultDependencies(out, func(ctx context.Context, req run.ExecRequest) (run.ExecResult, error) {
+			execResult, err := ptyexec.Run(ctx, ptyexec.Request{
+				RootAbs: req.RootAbs,
+				Argv:    req.Argv,
+			})
+			return run.ExecResult{ExitCode: execResult.ExitCode}, err
+		})
+		return run.Run(ctx, cfg, deps)
+	}
 }
