@@ -13,7 +13,7 @@ func TestCommandArgs(t *testing.T) {
 		want    []string
 		wantErr bool
 	}{
-		{name: "claude", agent: ClaudeAgent, prompt: "p", want: []string{"claude", "-p", "p"}},
+		{name: "claude", agent: ClaudeAgent, prompt: "p", want: []string{"claude", "p"}},
 		{name: "codex", agent: CodexAgent, prompt: "p", want: []string{"codex", "p"}},
 		{name: "invalid", agent: Name("other"), prompt: "p", wantErr: true},
 	}

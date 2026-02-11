@@ -42,6 +42,30 @@ func TestRunReturnsChildExitCode(t *testing.T) {
 	}
 }
 
+func TestRunProvidesTTYToChildProcess(t *testing.T) {
+	stdinR, stdinW, stdoutR, stdoutW := newPipes(t)
+	_ = stdinW.Close()
+	defer stdoutR.Close()
+
+	got, err := runWithConfig(context.Background(), Request{
+		RootAbs: t.TempDir(),
+		Argv:    []string{"sh", "-c", "test -t 0 && test -t 1"},
+	}, runtimeConfig{
+		stdin:        stdinR,
+		stdout:       stdoutW,
+		signalSource: make(chan os.Signal),
+		isTerminal:   func(int) bool { return false },
+	})
+	_ = stdoutW.Close()
+
+	if err != nil {
+		t.Fatalf("runWithConfig returned error: %v", err)
+	}
+	if got.ExitCode != 0 {
+		t.Fatalf("ExitCode = %d, want 0 (child should see TTY)", got.ExitCode)
+	}
+}
+
 func TestRunForwardsTerminationSignalsToChildSession(t *testing.T) {
 	stdinR, stdinW, stdoutR, stdoutW := newPipes(t)
 	_ = stdinW.Close()

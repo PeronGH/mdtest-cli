@@ -83,7 +83,7 @@ status: pass|fail
 
 Resolved agent is chosen once at run start.
 
-1. `claude` mode executes `claude -p <PROMPT>`.
+1. `claude` mode executes `claude <PROMPT>`.
 2. `codex` mode executes `codex <PROMPT>`.
 3. Tests run sequentially in suite root directory.
 4. Terminal interaction is passed through via PTY.
