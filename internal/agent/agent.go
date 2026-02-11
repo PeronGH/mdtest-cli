@@ -88,7 +88,7 @@ func resolveExplicit(agent Name, lookPath LookPathFunc) (Name, error) {
 func CommandArgs(agent Name, prompt string) ([]string, error) {
 	switch agent {
 	case ClaudeAgent:
-		return []string{string(ClaudeAgent), prompt}, nil
+		return []string{string(ClaudeAgent), "--permission-mode", "acceptEdits", prompt}, nil
 	case CodexAgent:
 		return []string{string(CodexAgent), prompt}, nil
 	default:

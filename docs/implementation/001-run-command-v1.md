@@ -111,7 +111,7 @@ Prompt wording may evolve, but these required facts cannot be removed.
 
 ## Agent Command Construction
 
-1. `claude`: argv `["claude", prompt]`
+1. `claude`: argv `["claude", "--permission-mode", "acceptEdits", prompt]`
 2. `codex`: argv `["codex", prompt]`
 3. Working directory: suite root absolute path.
 4. Child process exit code is recorded for diagnostics only.
