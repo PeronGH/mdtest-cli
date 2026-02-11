@@ -22,7 +22,7 @@ This repository is for `mdtest`, a test runner that uses AI agents as interprete
 
 **Referencing rules**: Design docs may reference other design docs. Implementation docs may reference design docs and other implementation docs. Design docs must not reference implementation docs — the dependency flows downward only.
 
-**Spec language**: Specs must be definitive. No "TBD", no "optionally", no unmade decisions. If something is unclear or undecided, the agent must discuss it with the user and resolve it before writing it into a spec.
+**Spec language**: Specs must be definitive and reasonably concise. No "TBD", no "optionally", no unmade decisions. If something is unclear or undecided, the agent must discuss it with the user and resolve it before writing it into a spec. Specs should be short enough that a human can review them in full.
 
 - `/tests/` — Test cases as `.test.md` files. This is what mdtest runs.
 
