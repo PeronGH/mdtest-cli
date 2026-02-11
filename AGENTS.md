@@ -19,6 +19,7 @@ This repository is for `mdtest`, a test runner that uses AI agents as interprete
 
 - `/docs/design/` — Design-level specs. Numbered starting from `001`. Describes what the system should do, in terms that anyone technical can follow without reading the codebase. Covers behavior, user-facing concepts, and architectural decisions.
 - `/docs/implementation/` — Implementation-level specs. Numbered starting from `001`. Written for programmers and coding agents. Describes interfaces, constraints, invariants, and structural decisions. Should be declarative and durable — express intent and rationale, not one-time plans tied to specific lines of code.
+- `/docs/plans/` — One-time implementation plans. Gitignored. Each plan is linked to an implementation doc and breaks it down into phases. Each phase must result in a coherent, compilable, runnable product (atomic). Phases should be small enough for human review — ideally under 200 lines of code changed, excluding lockfiles and generated files. Plans let a human preview what the agent is going to do before it does it.
 
 **Referencing rules**: Design docs may reference other design docs. Implementation docs may reference design docs and other implementation docs. Design docs must not reference implementation docs — the dependency flows downward only.
 
