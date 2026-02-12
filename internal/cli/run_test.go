@@ -5,8 +5,10 @@ import (
 	"context"
 	"errors"
 	"os/exec"
+	"reflect"
 	"testing"
 
+	"github.com/PeronGH/mdtest/internal/agent"
 	"github.com/PeronGH/mdtest/internal/run"
 )
 
@@ -33,6 +35,7 @@ func TestExecuteRejectsInvalidAgentFlag(t *testing.T) {
 func TestExecuteRunUsesDefaultAutoAndReturnsPassCode(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
+	var gotCfg run.Config
 
 	code := executeWithDeps(
 		[]string{"run"},
@@ -44,13 +47,21 @@ func TestExecuteRunUsesDefaultAutoAndReturnsPassCode(t *testing.T) {
 			}
 			return "", exec.ErrNotFound
 		},
-		func(context.Context, run.Config) (run.SuiteResult, error) {
+		func(_ context.Context, cfg run.Config) (run.SuiteResult, error) {
+			gotCfg = cfg
 			return run.SuiteResult{Total: 2, Passed: 2, Failed: 0}, nil
 		},
 	)
 
 	if code != 0 {
 		t.Fatalf("Execute exit code = %d, want 0; stderr=%q", code, stderr.String())
+	}
+	wantCfg := run.Config{
+		Root:  ".",
+		Agent: agent.ClaudeAgent,
+	}
+	if !reflect.DeepEqual(gotCfg, wantCfg) {
+		t.Fatalf("run config = %#v, want %#v", gotCfg, wantCfg)
 	}
 }
 
@@ -119,5 +130,95 @@ func TestExecuteRunReturnsSetupCodeWhenRunnerErrors(t *testing.T) {
 
 	if code != 2 {
 		t.Fatalf("Execute exit code = %d, want 2", code)
+	}
+}
+
+func TestExecuteRunParsesLongFlags(t *testing.T) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	var gotCfg run.Config
+
+	code := executeWithDeps(
+		[]string{
+			"run",
+			"--agent", "codex",
+			"--dir", "tests/smoke",
+			"--file", "a.test.md",
+			"--file", "nested/b.test.md",
+			"--interactive",
+			"--dangerously-allow-all-actions",
+		},
+		&stdout,
+		&stderr,
+		func(file string) (string, error) {
+			if file == "codex" {
+				return "/usr/bin/codex", nil
+			}
+			return "", exec.ErrNotFound
+		},
+		func(_ context.Context, cfg run.Config) (run.SuiteResult, error) {
+			gotCfg = cfg
+			return run.SuiteResult{Total: 1, Passed: 1, Failed: 0}, nil
+		},
+	)
+
+	if code != 0 {
+		t.Fatalf("Execute exit code = %d, want 0; stderr=%q", code, stderr.String())
+	}
+
+	wantCfg := run.Config{
+		Root:                       "tests/smoke",
+		Files:                      []string{"a.test.md", "nested/b.test.md"},
+		Agent:                      agent.CodexAgent,
+		Interactive:                true,
+		DangerouslyAllowAllActions: true,
+	}
+	if !reflect.DeepEqual(gotCfg, wantCfg) {
+		t.Fatalf("run config = %#v, want %#v", gotCfg, wantCfg)
+	}
+}
+
+func TestExecuteRunParsesShortFlags(t *testing.T) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	var gotCfg run.Config
+
+	code := executeWithDeps(
+		[]string{
+			"run",
+			"-a", "codex",
+			"-d", "tests/smoke",
+			"-f", "a.test.md",
+			"-f", "nested/b.test.md",
+			"-i",
+			"-A",
+		},
+		&stdout,
+		&stderr,
+		func(file string) (string, error) {
+			if file == "codex" {
+				return "/usr/bin/codex", nil
+			}
+			return "", exec.ErrNotFound
+		},
+		func(_ context.Context, cfg run.Config) (run.SuiteResult, error) {
+			gotCfg = cfg
+			return run.SuiteResult{Total: 1, Passed: 1, Failed: 0}, nil
+		},
+	)
+
+	if code != 0 {
+		t.Fatalf("Execute exit code = %d, want 0; stderr=%q", code, stderr.String())
+	}
+
+	wantCfg := run.Config{
+		Root:                       "tests/smoke",
+		Files:                      []string{"a.test.md", "nested/b.test.md"},
+		Agent:                      agent.CodexAgent,
+		Interactive:                true,
+		DangerouslyAllowAllActions: true,
+	}
+	if !reflect.DeepEqual(gotCfg, wantCfg) {
+		t.Fatalf("run config = %#v, want %#v", gotCfg, wantCfg)
 	}
 }

@@ -76,6 +76,10 @@ func NewRootCmd(stdout, stderr io.Writer, lookPath agent.LookPathFunc, runSuite 
 
 func newRunCmd(lookPath agent.LookPathFunc, runSuite RunSuiteFunc) *cobra.Command {
 	agentFlag := string(agent.AutoMode)
+	dirFlag := "."
+	var fileFlags []string
+	interactiveFlag := false
+	dangerousFlag := false
 	cmd := &cobra.Command{
 		Use:   "run",
 		Short: "Run markdown tests",
@@ -90,8 +94,11 @@ func newRunCmd(lookPath agent.LookPathFunc, runSuite RunSuiteFunc) *cobra.Comman
 			}
 
 			suite, err := runSuite(context.Background(), run.Config{
-				Root:  ".",
-				Agent: resolved,
+				Root:                       dirFlag,
+				Files:                      fileFlags,
+				Agent:                      resolved,
+				Interactive:                interactiveFlag,
+				DangerouslyAllowAllActions: dangerousFlag,
 			})
 			if err != nil {
 				var setupErr *run.SetupError
@@ -106,7 +113,11 @@ func newRunCmd(lookPath agent.LookPathFunc, runSuite RunSuiteFunc) *cobra.Comman
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&agentFlag, "agent", string(agent.AutoMode), "Agent mode: auto, claude, or codex")
+	cmd.Flags().StringVarP(&agentFlag, "agent", "a", string(agent.AutoMode), "Agent mode: auto, claude, or codex")
+	cmd.Flags().StringVarP(&dirFlag, "dir", "d", ".", "Suite root directory")
+	cmd.Flags().StringArrayVarP(&fileFlags, "file", "f", nil, "Target test file (repeatable)")
+	cmd.Flags().BoolVarP(&interactiveFlag, "interactive", "i", false, "Run agent in interactive mode")
+	cmd.Flags().BoolVarP(&dangerousFlag, "dangerously-allow-all-actions", "A", false, "Disable agent safety approvals/sandboxing")
 	return cmd
 }
 

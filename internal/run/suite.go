@@ -44,8 +44,11 @@ type SuiteResult struct {
 }
 
 type Config struct {
-	Root  string
-	Agent agent.Name
+	Root                       string
+	Files                      []string
+	Agent                      agent.Name
+	Interactive                bool
+	DangerouslyAllowAllActions bool
 }
 
 type ExecRequest struct {
@@ -131,7 +134,10 @@ func Run(ctx context.Context, cfg Config, deps Dependencies) (SuiteResult, error
 		}
 
 		promptText := deps.BuildPrompt(testAbs, logAbs)
-		argv, err := agent.CommandArgs(cfg.Agent, promptText, agent.CommandOptions{})
+		argv, err := agent.CommandArgs(cfg.Agent, promptText, agent.CommandOptions{
+			Interactive:                cfg.Interactive,
+			DangerouslyAllowAllActions: cfg.DangerouslyAllowAllActions,
+		})
 		if err != nil {
 			return SuiteResult{}, &SetupError{Err: fmt.Errorf("build command for %s: %w", testRel, err)}
 		}
