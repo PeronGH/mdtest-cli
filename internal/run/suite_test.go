@@ -132,3 +132,72 @@ func TestRunReturnsSetupErrorWhenExecFails(t *testing.T) {
 		t.Fatalf("Run error = %T, want *SetupError", err)
 	}
 }
+
+func TestRunUsesExplicitFilesAndSkipsDiscovery(t *testing.T) {
+	root := t.TempDir()
+	mustWriteFile(t, filepath.Join(root, "b.test.md"), "")
+	mustWriteFile(t, filepath.Join(root, "a.test.md"), "")
+
+	discoverCalled := false
+	var seenArgs [][]string
+	deps := Dependencies{
+		DiscoverTests: func(string) ([]string, error) {
+			discoverCalled = true
+			return nil, errors.New("discovery should not be called")
+		},
+		NextLogPath: func(testAbs string, _ time.Time) (string, string, error) {
+			base := strings.TrimSuffix(filepath.Base(testAbs), ".test.md")
+			logDir := filepath.Join(filepath.Dir(testAbs), base+".logs")
+			logAbs := filepath.Join(logDir, base+".log.md")
+			return logDir, logAbs, nil
+		},
+		ParseStatus: func(string) (logs.Status, error) {
+			return logs.StatusPass, nil
+		},
+		BuildPrompt: func(testAbs string, logAbs string) string {
+			return testAbs + " => " + logAbs
+		},
+		MkdirAll: os.MkdirAll,
+		Now: func() time.Time {
+			return time.Date(2026, time.February, 12, 10, 0, 0, 0, time.UTC)
+		},
+		Exec: func(_ context.Context, req ExecRequest) (ExecResult, error) {
+			seenArgs = append(seenArgs, append([]string(nil), req.Argv...))
+			return ExecResult{ExitCode: 0}, nil
+		},
+		Out: io.Discard,
+	}
+
+	result, err := Run(context.Background(), Config{
+		Root:  root,
+		Files: []string{"b.test.md", "a.test.md"},
+		Agent: agent.CodexAgent,
+	}, deps)
+	if err != nil {
+		t.Fatalf("Run returned error: %v", err)
+	}
+	if discoverCalled {
+		t.Fatal("DiscoverTests was called with explicit files, want it skipped")
+	}
+	if result.Total != 2 || result.Passed != 2 || result.Failed != 0 {
+		t.Fatalf("SuiteResult = %#v, want total=2 passed=2 failed=0", result)
+	}
+
+	if len(result.Results) != 2 {
+		t.Fatalf("result.Results length = %d, want 2", len(result.Results))
+	}
+	if result.Results[0].TestRel != "a.test.md" || result.Results[1].TestRel != "b.test.md" {
+		t.Fatalf(
+			"result order = [%q, %q], want lexical [a.test.md, b.test.md]",
+			result.Results[0].TestRel,
+			result.Results[1].TestRel,
+		)
+	}
+
+	if len(seenArgs) != 2 {
+		t.Fatalf("exec invocation count = %d, want 2", len(seenArgs))
+	}
+	if seenArgs[0][0] != "codex" || seenArgs[0][1] != "exec" {
+		t.Fatalf("first argv = %#v, want codex exec ...", seenArgs[0])
+	}
+}

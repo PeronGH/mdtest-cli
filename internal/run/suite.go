@@ -110,11 +110,19 @@ func Run(ctx context.Context, cfg Config, deps Dependencies) (SuiteResult, error
 		return SuiteResult{}, &SetupError{Err: fmt.Errorf("resolve root: %w", err)}
 	}
 
-	tests, err := deps.DiscoverTests(rootAbs)
-	if err != nil {
-		return SuiteResult{}, &SetupError{Err: fmt.Errorf("discover tests: %w", err)}
+	var tests []string
+	if len(cfg.Files) > 0 {
+		tests, err = ResolveExplicitTests(rootAbs, cfg.Files)
+		if err != nil {
+			return SuiteResult{}, &SetupError{Err: fmt.Errorf("resolve explicit test targets: %w", err)}
+		}
+	} else {
+		tests, err = deps.DiscoverTests(rootAbs)
+		if err != nil {
+			return SuiteResult{}, &SetupError{Err: fmt.Errorf("discover tests: %w", err)}
+		}
+		sort.Strings(tests)
 	}
-	sort.Strings(tests)
 	if len(tests) == 0 {
 		return SuiteResult{}, &SetupError{Err: fmt.Errorf("no tests found under %s", rootAbs)}
 	}
