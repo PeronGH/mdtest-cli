@@ -52,8 +52,9 @@ type Config struct {
 }
 
 type ExecRequest struct {
-	RootAbs string
-	Argv    []string
+	RootAbs     string
+	Argv        []string
+	Interactive bool
 }
 
 type ExecResult struct {
@@ -151,8 +152,9 @@ func Run(ctx context.Context, cfg Config, deps Dependencies) (SuiteResult, error
 		}
 
 		execResult, err := deps.Exec(ctx, ExecRequest{
-			RootAbs: rootAbs,
-			Argv:    argv,
+			RootAbs:     rootAbs,
+			Argv:        argv,
+			Interactive: cfg.Interactive,
 		})
 		if err != nil {
 			return SuiteResult{}, &SetupError{Err: fmt.Errorf("execute %s: %w", testRel, err)}

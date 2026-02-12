@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/PeronGH/mdtest/internal/agent"
-	"github.com/PeronGH/mdtest/internal/ptyexec"
+	"github.com/PeronGH/mdtest/internal/procexec"
 	"github.com/PeronGH/mdtest/internal/run"
 )
 
@@ -128,9 +128,10 @@ func DefaultLookPath(file string) (string, error) {
 func defaultRunSuite(out io.Writer) RunSuiteFunc {
 	return func(ctx context.Context, cfg run.Config) (run.SuiteResult, error) {
 		deps := run.DefaultDependencies(out, func(ctx context.Context, req run.ExecRequest) (run.ExecResult, error) {
-			execResult, err := ptyexec.Run(ctx, ptyexec.Request{
-				RootAbs: req.RootAbs,
-				Argv:    req.Argv,
+			execResult, err := procexec.Run(ctx, procexec.Request{
+				RootAbs:     req.RootAbs,
+				Argv:        req.Argv,
+				Interactive: req.Interactive,
 			})
 			return run.ExecResult{ExitCode: execResult.ExitCode}, err
 		})
