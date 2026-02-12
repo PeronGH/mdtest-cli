@@ -11,7 +11,7 @@ Define only implementation deltas from [`001`](001-run-command-v1.md). Unspecifi
 
 ## Module Deltas
 
-1. `internal/cli`: add `--dir/-d`, `--file/-f` (repeatable), `--interactive/-i`, `--dangerously-allow-all-actions/-A`.
+1. `internal/cli`: add `--dir/-d`, positional file targets, `--interactive/-i`, `--dangerously-allow-all-actions/-A`.
 2. `internal/run`: accept new config fields and run explicit file targets when provided.
 3. `internal/agent`: build argv from agent + prompt + execution options.
 4. `internal/procexec` (new): execute child process with or without PTY.
@@ -37,9 +37,9 @@ type ExecRequest struct {
 ## CLI Contract
 
 1. `--dir` default is `"."`.
-2. `--file` may be passed multiple times.
+2. Positional file arguments may be passed multiple times.
 3. Effective root is always defined from `--dir` (explicit or default `"."`).
-4. `--dir` and `--file` are valid together.
+4. `--dir` and positional file arguments are valid together.
 5. `--interactive` default is `false`.
 6. `--dangerously-allow-all-actions` default is `false`.
 7. `--agent` behavior is unchanged from [`001`](001-run-command-v1.md).
@@ -53,7 +53,7 @@ When `len(cfg.Files) == 0`:
 When `len(cfg.Files) > 0`:
 
 1. Resolve `rootAbs` first from effective root.
-2. For each `--file` value:
+2. For each positional file value:
    - if absolute: keep absolute path
    - if relative: join with `rootAbs`
    - clean and normalize path
@@ -101,7 +101,7 @@ Runner does not add other approval/sandbox flags by default.
 
 Go unit tests:
 
-1. CLI flag parsing for all new long and short flags.
+1. CLI parsing for new long and short flags plus positional file arguments.
 2. Explicit target resolution matrix:
    - relative and absolute paths
    - outside-root rejection
@@ -117,6 +117,6 @@ Go unit tests:
 
 Manual verification commands (operator-run):
 
-1. `mdtest run -f <path-a.test.md> -f <path-b.test.md>` runs exactly the selected files.
+1. `mdtest run <path-a.test.md> <path-b.test.md>` runs exactly the selected files.
 2. `mdtest run` runs non-interactive by default.
 3. `mdtest run -i` runs with PTY passthrough.
