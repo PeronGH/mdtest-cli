@@ -21,6 +21,30 @@ go run ./cmd/mdtest run --agent claude
 go run ./cmd/mdtest run --agent codex
 ```
 
+## Writing `.test.md` Files
+
+`mdtest` prompts the agent with runtime details (test file path, output log path, and result-frontmatter contract).  
+Your test file should focus on task behavior, not runner mechanics.
+
+Use this structure:
+
+```markdown
+# Test Name
+
+## Steps
+
+1. Do concrete action A.
+2. Verify concrete outcome B.
+3. Set pass/fail decision based on observed result.
+```
+
+Guidelines:
+
+- Write imperative, step-by-step instructions.
+- Make assertions specific and observable.
+- Avoid vague wording ("looks good", "works fine").
+- Avoid meta instructions about where to write logs or YAML front matter.
+
 ## Result Contract
 
 Each test is passed to the agent. The agent writes a log file. `mdtest` reads status only from YAML front matter at byte 0:
