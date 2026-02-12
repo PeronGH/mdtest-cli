@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/PeronGH/mdtest/internal/agent"
-	"github.com/PeronGH/mdtest/internal/run"
+	"github.com/PeronGH/mdtest-cli/internal/agent"
+	"github.com/PeronGH/mdtest-cli/internal/run"
 )
 
 func TestExecuteRejectsInvalidAgentFlag(t *testing.T) {

@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/PeronGH/mdtest/internal/agent"
-	"github.com/PeronGH/mdtest/internal/logs"
+	"github.com/PeronGH/mdtest-cli/internal/agent"
+	"github.com/PeronGH/mdtest-cli/internal/logs"
 )
 
 func TestRunReturnsSetupErrorWhenNoTests(t *testing.T) {

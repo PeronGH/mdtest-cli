@@ -9,9 +9,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/PeronGH/mdtest/internal/agent"
-	"github.com/PeronGH/mdtest/internal/logs"
-	"github.com/PeronGH/mdtest/internal/prompt"
+	"github.com/PeronGH/mdtest-cli/internal/agent"
+	"github.com/PeronGH/mdtest-cli/internal/logs"
+	"github.com/PeronGH/mdtest-cli/internal/prompt"
 )
 
 type TestStatus string

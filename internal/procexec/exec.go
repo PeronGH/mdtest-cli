@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/PeronGH/mdtest/internal/ptyexec"
+	"github.com/PeronGH/mdtest-cli/internal/ptyexec"
 )
 
 type Request struct {
