@@ -85,12 +85,34 @@ func resolveExplicit(agent Name, lookPath LookPathFunc) (Name, error) {
 	return "", fmt.Errorf("resolve %q: %w", agent, err)
 }
 
-func CommandArgs(agent Name, prompt string) ([]string, error) {
+type CommandOptions struct {
+	Interactive                bool
+	DangerouslyAllowAllActions bool
+}
+
+func CommandArgs(agent Name, prompt string, opts CommandOptions) ([]string, error) {
 	switch agent {
 	case ClaudeAgent:
-		return []string{string(ClaudeAgent), "--permission-mode", "acceptEdits", prompt}, nil
+		args := []string{string(ClaudeAgent)}
+		if !opts.Interactive {
+			args = append(args, "-p")
+		}
+		args = append(args, "--permission-mode", "acceptEdits")
+		if opts.DangerouslyAllowAllActions {
+			args = append(args, "--dangerously-skip-permissions")
+		}
+		args = append(args, prompt)
+		return args, nil
 	case CodexAgent:
-		return []string{string(CodexAgent), prompt}, nil
+		args := []string{string(CodexAgent)}
+		if !opts.Interactive {
+			args = append(args, "exec")
+		}
+		if opts.DangerouslyAllowAllActions {
+			args = append(args, "--dangerously-bypass-approvals-and-sandbox")
+		}
+		args = append(args, prompt)
+		return args, nil
 	default:
 		return nil, fmt.Errorf("unsupported agent %q", agent)
 	}
