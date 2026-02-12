@@ -2,6 +2,7 @@
 
 Status: Accepted  
 Date: 2026-02-11
+Update Note: Extended by [`002`](002-run-target-selection-and-execution-modes.md) for `run` target/interaction flag deltas.
 
 ## Summary
 
