@@ -1,6 +1,6 @@
 # 002: `mdtest run` Target and Interaction Flags
 
-Status: Proposed  
+Status: Accepted  
 Date: 2026-02-12  
 Design Base: [`001`](001-minimal-run-command.md)
 
@@ -29,13 +29,18 @@ Defaults:
 
 ## Target Selection
 
-1. `--dir` sets suite root and child process working directory.
-2. Without `--file`, runner discovers `*.test.md` recursively under `--dir`.
-3. With `--file`, runner executes exactly the provided set.
-4. Every `--file` must exist, be a regular file, end with `.test.md`, and resolve within `--dir`.
-5. Duplicate targets are removed after normalization.
-6. Final run order is lexical by suite-relative path.
-7. Empty target set is a setup error.
+1. Effective root is `--dir` if provided, otherwise implicit `.`.
+2. `--dir` sets suite root and child process working directory.
+3. `--dir` and `--file` can be used together.
+4. Without `--file`, runner discovers `*.test.md` recursively under the effective root.
+5. With one or more `--file`, discovery is skipped and runner executes exactly the provided set.
+6. For `--file` values:
+   - relative paths are resolved from the effective root
+   - absolute paths are allowed only if they are inside the effective root
+   - each path must exist, be a regular file, and end with `.test.md`
+7. Duplicate targets are removed after normalization.
+8. Final run order is lexical by suite-relative path.
+9. Empty target set is a setup error.
 
 ## Execution Style
 
@@ -66,7 +71,8 @@ This mode is explicit opt-in only.
 
 1. `mdtest run -d tests/smoke` runs discovery under `tests/smoke`.
 2. `mdtest run -f tests/a.test.md -f tests/b.test.md` runs exactly those files.
-3. Invalid `--file` values return setup error with clear diagnostics.
-4. `mdtest run` runs non-interactive by default.
-5. `mdtest run -i` runs with PTY passthrough.
-6. `-A` toggles the correct dangerous flag per agent.
+3. `mdtest run -d tests -f smoke/a.test.md` resolves `-f` from `-d` and runs only that target.
+4. Invalid `--file` values return setup error with clear diagnostics.
+5. `mdtest run` runs non-interactive by default.
+6. `mdtest run -i` runs with PTY passthrough.
+7. `-A` toggles the correct dangerous flag per agent.
