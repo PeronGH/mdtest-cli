@@ -13,12 +13,10 @@ Run `.test.md` files using a local agent CLI (`claude` or `codex`).
 go run ./cmd/mdtest run
 ```
 
-Or choose an agent explicitly:
+For more options:
 
 ```bash
-go run ./cmd/mdtest run --agent auto
-go run ./cmd/mdtest run --agent claude
-go run ./cmd/mdtest run --agent codex
+go run ./cmd/mdtest run -h
 ```
 
 ## Writing `.test.md` Files
